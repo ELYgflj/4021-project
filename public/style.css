@@ -1,0 +1,66 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#game {
+    width: 400px;
+    height: 400px;
+    border: 1px solid black;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.player {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    background-color: blue;
+}
+
+.item {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    background-color: yellow; /* Color for items */
+}
+
+.bomb {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    background-color: black; /* Color for items */
+}
+
+.heart {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    background-color: red; /* Color for items */
+}
+
+.shield {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    background-color: cyan; /* Color for items */
+}
+.portal {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    background-color: green; /* Color for portals */
+}
+
+#start-screen,
+#game-over {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#start-button,
+#restart-button {
+    padding: 10px 20px;
+    font-size: 16px;
+}
