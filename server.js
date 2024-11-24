@@ -90,11 +90,11 @@ io.on('connection', (socket) => {
             });
 
             
-            if (portals[0].x == player.x && portals[0].y == player.y){
+            if (Math.abs(portals[0].x -player.x) < 0.5 && Math.abs(portals[0].y - player.y) < 0.5){
                 player.x = portals[1].x;
                 player.y = portals[1].y;
             }else{
-                if (portals[1].x == player.x && portals[1].y == player.y){
+                if (Math.abs(portals[1].x -player.x) < 0.5 && Math.abs(portals[1].y - player.y) < 0.5){
                     player.x = portals[0].x;
                     player.y = portals[0].y;
                 }
