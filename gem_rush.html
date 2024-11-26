@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Collect the Gems!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Press Start 2P", sans-serif;
+        }
+        #game-container {
+            position: relative;
+        }
+        canvas {
+            border: 1px solid gray;
+            width: 854px;
+            height: 480px;
+            background: url(background.png);
+            background-size: cover;
+        }
+        #game-start, #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+            background: rgba(1, 1, 1, 0.8);
+            border: 1px solid gray;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="854px" height="480px"></canvas>
+        <svg id="game-start">
+            <text x="50%" y="50%">Click here to start the game</text>
+        </svg>
+        <svg id="game-over" style="display: none">
+            <text x="50%" y="50%" id="final-message">Game Over!</text>
+        </svg>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="bounding_box.js"></script>
+    <script src="sprite.js"></script>
+    <script src="player.js"></script>
+    <script src="gem.js"></script>
+    <script src="fire.js"></script>
+    <script>
+    $(function() {
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+        const socket = new WebSocket("ws://localhost:8000");
+
+        let players = {};
+        let gems = [];
+        let fires = [];
+        let collectedGems = 0;
+
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            players = data.players;
+            gems = data.gems;
+            fires = data.fires;
+            drawGame();
+        };
+
+        function drawGame() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            for (const id in players) {
+                const player = players[id];
+                context.fillStyle = "blue"; // Player color
+                context.fillRect(player.x, player.y, 20, 20); // Draw player sprite
+                context.fillText(`Gems: ${player.gems}`, player.x - 10, player.y - 10); // Display collected gems
+            }
+            gems.forEach(gem => {
+                if (!gem.collected) {
+                    context.fillStyle = "green";
+                    context.fillRect(gem.x, gem.y, 15, 15); // Draw gem
+                }
+            });
+            fires.forEach(fire => {
+                context.fillStyle = "red";
+                context.fillRect(fire.x, fire.y, 20, 20); // Draw fire
+            });
+        }
+
+        $(document).on("keydown", function(event) {
+            let dx = 0, dy = 0;
+            switch (event.keyCode) {
+                case 37: dx = -5; break; // left arrow
+                case 38: dy = -5; break; // up arrow
+                case 39: dx = 5; break;  // right arrow
+                case 40: dy = 5; break;  // down arrow
+            }
+            socket.send(JSON.stringify({ type: 'move', dx, dy }));
+        });
+
+        $("#game-start").on("click", function() {
+            $("#game-start").hide();
+            // Start game logic
+        });
+    });
+    </script>
+</body>
+</html>
