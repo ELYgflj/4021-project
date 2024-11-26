@@ -76,6 +76,11 @@
                 gem(s).
             </text>
         </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" id="counter">
+            <text x="10" y="35">
+                TIME:<tspan id="time-remaining">20</tspan>
+            </text>
+        </svg>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
@@ -90,56 +95,80 @@
         const context = canvas.getContext("2d");
         const socket = new WebSocket("ws://localhost:8000");
         const gameArea = BoundingBox(context, 165, 60, 420, 800);
-        let players = {};
+        let gameStartTime = 0;   
+        const totalGameTime = 20; 
+        let player1 = Player(context, 427, 240, gameArea); // this player
+        let player2 = Player(context, 227, 40, gameArea); //other playrt
         let gems = [];
         const cornerPoints = gameArea.getPoints();
+        let collectedGems = 0;
         let fires = [
             Fire(context, cornerPoints.topLeft[0], cornerPoints.topLeft[1], "realfire"),
             Fire(context, cornerPoints.topRight[0], cornerPoints.topRight[1], "realfire"), 
             Fire(context, cornerPoints.bottomLeft[0], cornerPoints.bottomLeft[1], "realfire"), 
             Fire(context, cornerPoints.bottomRight[0], cornerPoints.bottomRight[1], "realfire"), 
             ]
-        let collectedGems = 0;
-
         socket.onmessage = function(event) {
+
             const data = JSON.parse(event.data);
             players = data.players;
             gems = data.gems;
-            fires = data.fires;
-            drawGame();
+            Object.assign(players, {
+                player1: { name: "Alice", score: 0 },
+                player2: { name: "Bob", score: 0 }
+            });
+            drawGame(0);
         };
 
-        function drawGame() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            for (const id in players) {
-                const player = players[id];
-                context.fillStyle = "blue"; // Player color
-                context.fillRect(player.x, player.y, 20, 20); // Draw player sprite
-                context.fillText(`Gems: ${player.gems}`, player.x - 10, player.y - 10); // Display collected gems
+        function drawGame(now) {
+            if (gameStartTime == 0) gameStartTime = now;
+            /* Update the time remaining */
+            const gameTimeSoFar = now - gameStartTime;
+            const timeRemaining = Math.ceil((totalGameTime * 1000 - gameTimeSoFar) / 1000);
+            $("#time-remaining").text(timeRemaining);
+            if(gameTimeSoFar==0){
+                // gem.randomize(gameArea);
+                // sounds.background.play();
             }
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
             gems.forEach(gem => {
                 if (!gem.collected) {
                     context.fillStyle = "green";
                     context.fillRect(gem.x, gem.y, 15, 15); // Draw gem
                 }
             });
+            player1.update(now)
+            player1.draw();
+            player2.update(now)
+            player2.draw();
+            fires.forEach(f => f.update(now));
             fires.forEach(f => f.draw());
+            requestAnimationFrame(drawGame);
         }
 
 
         $("#game-start").on("click", function() {
             $("#game-start").hide();
             // Start game logic
-            $(document).on("keydown", function(event) {
-            let dx = 0, dy = 0;
-            switch (event.keyCode) {
-                case 37: dx = -5; break; // left arrow
-                case 38: dy = -5; break; // up arrow
-                case 39: dx = 5; break;  // right arrow
-                case 40: dy = 5; break;  // down arrow
-            }
-            socket.send(JSON.stringify({ type: 'move', dx, dy }));
-        });
+            $(document).on("mousedown", function(event) {
+    /* 获取鼠标点击位置 */
+                let mouseX = event.clientX; // 获取鼠标的 X 坐标
+                let mouseY = event.clientY; // 获取鼠标的 Y 坐标
+                /* 处理鼠标按下，移动玩家到点击位置 */
+                player1.moveTo(mouseX, mouseY); // 假设 player1 有 moveTo 方法
+                io.exit()
+                /* 例如，按下鼠标时加速 */
+                
+            });
+
+            $(document).on("mouseup", function(event) {
+                /* 处理鼠标释放 */
+                // 例如，释放鼠标时减速
+                
+            });
+            requestAnimationFrame(drawGame);
         });
     });
     </script>
