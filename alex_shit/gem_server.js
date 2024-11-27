@@ -68,7 +68,8 @@ app.post("/register", (req, res) => {
     // G. Adding the new user account
     //
     const hash = bcrypt.hashSync(password,10);
-    users[username] = {hash};
+    let wins = 0;
+    users[username] = {hash,wins};
     //
     // H. Saving the users.json file
     //
@@ -195,5 +196,5 @@ io.on('connection', (socket) => {
 //}, 1000 / 60); // 60 FPS
 
 httpServer.listen(8000, () => {
-    console.log("The chat server has started...");
+    console.log("The game server has started...");
 });
