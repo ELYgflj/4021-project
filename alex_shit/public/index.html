@@ -39,7 +39,7 @@
                     <label for="register-password">Password:</label>
                     <input id="register-password" type="password" placeholder="Enter your password"></input>
                     
-                    <label for="register-confirm">Re-password:</label>
+                    <label for="register-confirm">re-enter Password:</label>
                     <input id="register-confirm" type="password" placeholder="Enter your password again"></input>
 
                     <button type="submit" id="register-btn">Register</button>
@@ -47,16 +47,21 @@
                 </form>
             </div>
         </div>
-    <div id = "log_in_successful" style = "display: none">Log In SUCCESSFUL!</div>
+    <div id = "log_in_successful" style = "display: none">LOG IN SUCCESSFUL!</div>
         <!-- Game Start Section -->
         <section id="game-rules-section" >
             <div id="game-rules">
                 <h2>Game Rules</h2>
                 <ul>
-                    <li>Navigate the maze to collect items and defeat your opponent.</li>
-                    <li>Use WASD keys to move around the maze.</li>
-                    <li>Each item has unique functionality (refer to gameplay page).</li>
-                    <li>The player with the highest HP after 3 minutes wins.</li>
+                    <li>1. Navigate the maze to collect items and defeat your opponent.</li>
+                    <li>2. Use mouse click to move around the maze.</li>
+                    <li>3. Each item has unique functionality. 
+                        <li>- can place the bomb on the maze, and it will explode when user is close to it.</li> 
+                        <li>- shield will protect you from the explosion once.</li>
+                        <li>- heart will increase your HP.</li>
+                        <li>- You can teleport in the maze through the portals.</li> 
+                    </li>
+                    <li>4. The player whose HP dropped to 0 will lose, or the player with the highest HP after 3 minutes wins.</li>
                 </ul>
             </div>
             <button id="start-btn" disabled>Start Game</button>
