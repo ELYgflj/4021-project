@@ -61,6 +61,12 @@ const Socket = (function() {
             gammingpanel.setCanPlay(true);
             gammingpanel.setPlayerId(id);
         });
+        socket.on("playerposition",(position)=> {
+            position = JSON.parse(position);
+            gammingpanel.setPlayerchange(position.playerId)
+            gammingpanel.setplayerx(position.x)
+            gammingpanel.setplayery(position.y)
+        } )
     };
 
     // This function disconnects the socket from the server
@@ -85,8 +91,8 @@ const Socket = (function() {
     };
     const playermove = function(content){
         if (socket && socket.connected) {
+            console.log(content.x);
             socket.emit("player_move",content);
-            
         }
     };
 

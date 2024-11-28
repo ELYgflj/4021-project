@@ -140,6 +140,9 @@ const gameOverPanel = (function() {
 
 const gammingpanel = (function() {
     let playerId = -1;
+    let player_change = -1;
+    let player_x = -1;
+    let player_y = -1;
     let canPlay = false;
     const initialize = function(){
         $("#game-container").on("mousedown", function(event) {
@@ -150,12 +153,12 @@ const gammingpanel = (function() {
             //player1.moveTo(mouseX, mouseY); // 假设 player1 有 moveTo 方法
             // io.exit()
             const content = {
+                playerId:getPlayerId(),
                 x: mouseX,
                 y: mouseY,
 
             };
             Socket.playermove(content);
-            
         });
     };
 
@@ -163,10 +166,113 @@ const gammingpanel = (function() {
         playerId = id;
         console.log(playerId);
     }
+    const setPlayerchange = function(id){
+        player_change = id;
+    }
+    const setplayerx = function(id){
+        player_x = id;
+    }
+    const setplayery= function(id){
+        player_y = id;
+    }
+    const getPlayerchange = function(){
+        return player_change;
+    }
+    const getplayerx = function(){
+        return player_x;
+    }
+    const getplayery= function(){
+        return player_y;
+    }
     const startGame = function(){
         $("#front-page-container").fadeOut(500);
+
         $("#game-container").fadeIn(500);
-        console.log("Everythin ok!")
+
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+        const gameArea = BoundingBox(context, 165, 60, 420, 800);
+        const walls = [BoundingBox(context, 310, 200, 320, 800)];
+        let gameStartTime = 0;   
+        const totalGameTime = 20; 
+        let player1 = Player(context, 427, 240, gameArea, walls); // 玩家 1
+        let player2 = Player2(context, 427, 240, gameArea, walls); // 玩家 2
+        let gems = [Gem(context, 427, 350, "green")];
+        const cornerPoints = gameArea.getPoints();
+        let collectedGems = 0;
+        let fires = [
+            Fire(context, cornerPoints.topLeft[0], cornerPoints.topLeft[1], "realfire"),
+            Fire(context, cornerPoints.topRight[0], cornerPoints.topRight[1], "realfire"), 
+            Fire(context, cornerPoints.bottomLeft[0], cornerPoints.bottomLeft[1], "realfire"), 
+            Fire(context, cornerPoints.bottomRight[0], cornerPoints.bottomRight[1], "realfire")
+        ];
+        drawGame(0);   
+        // socket.onmessage = function(event) {
+        //     const data = JSON.parse(event.data);
+        //     const players = data.players;
+        //     Object.assign(players, {
+        //         player1: { name: "Alice", score: 0 },
+        //         player2: { name: "Bob", score: 0 }
+        //     });
+        //     drawGame(0);
+        // };
+
+        function drawGame(now) {
+            if (gameStartTime == 0) gameStartTime = now;
+            const gameTimeSoFar = now - gameStartTime;
+            const timeRemaining = Math.ceil((totalGameTime * 1000 - gameTimeSoFar) / 1000);
+            $("#time-remaining").text(timeRemaining);
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < walls.length; i++) {
+                context.fillStyle = 'white'; // 设置填充颜色
+                context.fillRect(200, 330, 600, 10); // 绘制墙壁
+            }
+
+            gems.forEach(gem => {
+                if (!gem.collected) {
+                    gem.update(now);
+                    gem.draw();
+                }
+            });
+            console.log(getPlayerchange());
+            if(getPlayerchange()!=-1){
+                if(getPlayerchange()==0){
+                    player1.moveTo(getplayerx(),getplayery())
+                    setPlayerchange(-1)
+                }
+                else{
+                    player2.moveTo(getplayerx(),getplayery())
+                    setPlayerchange(-1)
+                }
+            }
+            player1.update(now);
+            player1.draw();
+            player2.update(now);
+            player2.draw();
+
+            fires.forEach(f => f.update(now));
+            fires.forEach(f => f.draw());
+
+            requestAnimationFrame(drawGame); // 循环调用绘制函数
+        }
+
+        // 当游戏开始按钮被点击时
+        // $("#game-start").on("click", function() {
+        //     $("#game-start").hide(); // 隐藏开始界面
+        //     // 游戏逻辑开始
+        //     $("#game-container").on("mousedown", function(event) {
+        //         const mouseX = event.clientX; // 获取鼠标点击位置
+        //         const mouseY = event.clientY; // 获取鼠标的 Y 坐标
+        //         // if(playerId==0){
+        //         //     player1.moveTo(mouseX, mouseY);
+        //         // }
+        //         // else{
+        //         //     player2.moveTo(mouseX, mouseY); // 假设 player1 有 moveTo 方法
+        //         // }
+        //         // player1.moveTo(mouseX, mouseY); // 假设 player1 有 moveTo 方法
+        //     });
+        //     requestAnimationFrame(drawGame); // 开始游戏的绘制循环
+        // });
     };
 
     const setCanPlay = function(play){
@@ -185,7 +291,9 @@ const gammingpanel = (function() {
     const hide = function() {
         $("#game-container").fadeOut(500);
     };
-    return { initialize, show, hide, setPlayerId,startGame,setCanPlay,getCanPlay,getPlayerId };
+    return { initialize, show, hide, setPlayerId,startGame,setCanPlay,getCanPlay,getPlayerId
+        ,setPlayerchange,setplayerx ,setplayery,getPlayerchange,getplayerx,getplayery
+     };
 }
 
 )();

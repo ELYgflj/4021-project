@@ -187,26 +187,26 @@ io.on('connection', (socket) => {
         }
 
     })
-    socket.on("playermove", (content) => {
+    socket.on("player_move", (content) => {
         console.log("Player moved to:", content); // { x: mouseX, y: mouseY }
 
         // 处理移动逻辑，例如更新玩家位置
-        // 假设你有 players 对象来存储玩家信息
+        // 假设你有 players 对象来存储玩家信息 
         // const playerId = socket.id; // 使用 socket.id 唯一标识每个玩家
         // players[playerId] = {
         //     x: content.x,
         //     y: content.y
         // };
-
         // 可以选择广播给其他客户端
-        io.emit("playerMoved", {
-            // playerId: playerId,
-            position: {
-                x: content.x,
-                y: content.y
-            }
-        });
+        const position = {
+            playerId:content.playerId,
+            x: content.x,
+            y: content.y
+        }
+        io.emit("playerposition", JSON.stringify(position));
     });
+
+    
     socket.on('message', (message) => {
         const data = JSON.parse(message);
         if (data.type === 'move') {
