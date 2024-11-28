@@ -44,38 +44,35 @@ const Socket = (function() {
             OnlineUsersPanel.removeUser(user);
         });
 
-        // Set up the messages event
-        socket.on("messages", (chatroom) => {
-            chatroom = JSON.parse(chatroom);
 
-            // Show the chatroom messages
-            ChatPanel.update(chatroom);
+        socket.on("start response",() => {
+            //start the game
+            if(gammingpanel.getCanPlay()){
+                gammingpanel.startGame();
+            }
         });
 
-        // Set up the add message event
-        socket.on("add message", (message) => {
-            message = JSON.parse(message);
-
-            // Add the message to the chatroom
-            ChatPanel.addMessage(message);
+        socket.on("full", () =>{
+            $("#full").text("FULL");
         });
 
-        socket.on("typer", (user) => {
-            user = JSON.parse(user);
-
-            // Show the chatroom messages
-            ChatPanel.userTyping(user);
+        socket.on("your player id", (id) =>{
+            //console.log(id);
+            gammingpanel.setCanPlay(true);
+            gammingpanel.setPlayerId(id);
         });
     };
 
     // This function disconnects the socket from the server
     const disconnect = function() {
-        socket.disconnect();
-        socket = null;
+        if(socket){
+            socket.disconnect();
+            socket = null;
+        }
     };
 
     // This function sends a post message event to the server
-    const playermove = function(content) {
+    const postMessage = function(content) {
         if (socket && socket.connected) {
             socket.emit("post message", content);
         }
@@ -85,12 +82,21 @@ const Socket = (function() {
         if (socket && socket.connected) {
             socket.emit("typing");
         }
-    }
-    // const playermove = function(content){
-    //     if (socket && socket.connected) {
-    //         socket.emit("playermove", content);
-    //     }
-    // }
+    };
+    const playermove = function(content){
+        if (socket && socket.connected) {
+            socket.emit("player_move",content);
+            
+        }
+    };
 
-    return { getSocket, connect, disconnect, typing, playermove };
+    const requestStart = function(){
+        if (socket && socket.connected) {
+            console.log("socket.requestStart")
+            socket.emit("request_start");
+        }
+    };
+
+    return { getSocket, connect, disconnect, postMessage, typing ,playermove, requestStart};
 })();
+

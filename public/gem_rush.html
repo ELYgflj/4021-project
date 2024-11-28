@@ -165,14 +165,14 @@
                 let mouseX = event.clientX; // 获取鼠标的 X 坐标
                 let mouseY = event.clientY; // 获取鼠标的 Y 坐标
                 /* 处理鼠标按下，移动玩家到点击位置 */
-                player1.moveTo(mouseX, mouseY); // 假设 player1 有 moveTo 方法
+                //player1.moveTo(mouseX, mouseY); // 假设 player1 有 moveTo 方法
                 // io.exit()
                 const content = {
                     x: mouseX,
                     y: mouseY,
 
                 };
-                postMessage(content);
+                playermove(content);
                 
             });
             requestAnimationFrame(drawGame);

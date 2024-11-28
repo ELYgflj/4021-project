@@ -10,6 +10,8 @@ const httpServer = createServer( app );
 const io = new Server(httpServer);
 const bcrypt = require("bcrypt");
 
+const sockets = {}
+
 const gameSession = session({
     secret: "game",
     resave: false,
@@ -165,7 +167,46 @@ initializeGameObjects();
 io.on('connection', (socket) => {
     const playerId = Date.now(); // Simple unique ID based on timestamp
     players[playerId] = { x: 427, y: 240, gems: 0 }; // Initial position and gems count
+    socket.on("request_start",() => {
+        if(Object.keys(sockets).length<2){
+            if(Object.keys(sockets).length == 0){
+                sockets[socket.id] = socket;
+                socket.emit(("your player id"),0);
+            }
+            else{
+                if( sockets[socket.id] == null){
+                    sockets[socket.id] = socket;
+                    socket.emit(("your player id"),1);
+                    io.emit("start response");
+                }
 
+            }
+        }
+        else{
+            socket.emit(("full"));
+        }
+
+    })
+    socket.on("playermove", (content) => {
+        console.log("Player moved to:", content); // { x: mouseX, y: mouseY }
+
+        // 处理移动逻辑，例如更新玩家位置
+        // 假设你有 players 对象来存储玩家信息
+        // const playerId = socket.id; // 使用 socket.id 唯一标识每个玩家
+        // players[playerId] = {
+        //     x: content.x,
+        //     y: content.y
+        // };
+
+        // 可以选择广播给其他客户端
+        io.emit("playerMoved", {
+            // playerId: playerId,
+            position: {
+                x: content.x,
+                y: content.y
+            }
+        });
+    });
     socket.on('message', (message) => {
         const data = JSON.parse(message);
         if (data.type === 'move') {
@@ -181,11 +222,20 @@ io.on('connection', (socket) => {
             }
         });
     });
-
     socket.on('close', () => {
-        delete players[playerId];
+        delete sockets[socket.id];
     });
+
+    // socket.on("request_start")
+    socket.on('connection', (socket) => {
+        console.log('A user connected');
     
+        // 监听 playermove 事件
+
+
+
+    
+    });
 });
 
 //setInterval(() => {
