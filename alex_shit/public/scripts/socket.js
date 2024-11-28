@@ -70,8 +70,10 @@ const Socket = (function() {
 
     // This function disconnects the socket from the server
     const disconnect = function() {
-        socket.disconnect();
-        socket = null;
+        if(socket){
+            socket.disconnect();
+            socket = null;
+        }
     };
 
     // This function sends a post message event to the server
@@ -89,3 +91,4 @@ const Socket = (function() {
 
     return { getSocket, connect, disconnect, postMessage, typing };
 })();
+
