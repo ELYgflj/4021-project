@@ -21,7 +21,7 @@ const SignInForm = (function() {
                     hide();
                     //UserPanel.update(Authentication.getUser());
                     //UserPanel.show();
-                    $("#signout-button").prop('disabled', false);
+                    $(".signout-button").prop('disabled', false);
                     Socket.connect();
                 },
                 (error) => { $("#signin-message").text(error); }
@@ -75,13 +75,13 @@ const SignInForm = (function() {
 const gameStartPanel = (function() {
     const initialize = function() {
         console.log("hi 2");
-        $("#signout-button").on("click", () => {
+        $(".signout-button").on("click", () => {
             // Send a signout request
             Authentication.signout(
                 () => {
                     Socket.disconnect();
                     SignInForm.show();
-                    $("#signout-button").prop("disabled", true); // Use prop instead of disabled
+                    $(".signout-button").prop("disabled", true); // Use prop instead of disabled
                     $("#log_in_successful").text("");
                 }
             );
@@ -105,13 +105,13 @@ const gameStartPanel = (function() {
 
 const gameOverPanel = (function() {
     const initialize = function() {
-        $("#g_signout-button").on("click", () => {
+        $(".signout-button").on("click", () => {
             // Send a signout request
             Authentication.signout(
                 () => {
                     Socket.disconnect();
                     SignInForm.show();
-                    $("#signout-button").prop("disabled", true); // Use prop instead of disabled
+                    $(".signout-button").prop("disabled", true); // Use prop instead of disabled
                     $("#log_in_successful").text("");
                 }
             );
