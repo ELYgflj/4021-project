@@ -326,7 +326,7 @@ form button:disabled {
     cursor: not-allowed;
 }
 
-#signout-button {
+.signout-button {
     background: #e63946;
     color: #fff;
     padding: 10px 20px;
@@ -340,11 +340,11 @@ form button:disabled {
     transition: all 0.3s ease;
 }
 
-#signout-button:hover:not(:disabled) {
+.signout-button:hover:not(:disabled) {
     background: #d62828;
 }
 
-#signout-button:disabled {
+.signout-button:disabled {
     background: #555;
     cursor: not-allowed;
 }
