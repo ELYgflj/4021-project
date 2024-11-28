@@ -2,7 +2,7 @@ const SignInForm = (function() {
     // This function initializes the UI
     const initialize = function() {
         // Populate the avatar selection
-        
+        console.log("hi 1")
         // Hide it
         $("#signin-overlay").hide();
 
@@ -19,9 +19,9 @@ const SignInForm = (function() {
             Authentication.signin(username, password,
                 () => {
                     hide();
-                    UserPanel.update(Authentication.getUser());
-                    UserPanel.show();
-
+                    //UserPanel.update(Authentication.getUser());
+                    //UserPanel.show();
+                    $("#signout-button").prop('disabled', false);
                     Socket.connect();
                 },
                 (error) => { $("#signin-message").text(error); }
@@ -71,174 +71,68 @@ const SignInForm = (function() {
     return { initialize, show, hide };
 })();
 
-// //const UserPanel = (function() {
-//     // This function initializes the UI
-// //    const initialize = function() {
-//         // Hide it
-// //        $("#user-panel").hide();
 
-//         // Click event for the signout button
-// //        $("#signout-button").on("click", () => {
-//             // Send a signout request
-// //            Authentication.signout(
-// //                () => {
-// //                    Socket.disconnect();
-
-// //                    hide();
-//                     SignInForm.show();
-//                 }
-//             );
-//         });
-//     };
-
-//     // This function shows the form with the user
-//     const show = function(user) {
-//         $("#user-panel").show();
-//     };
-
-//     // This function hides the form
-//     const hide = function() {
-//         $("#user-panel").hide();
-//     };
-
-//     // This function updates the user panel
-//     const update = function(user) {
-//         if (user) {
-//             $("#user-panel .user-avatar").html(Avatar.getCode(user.avatar));
-//             $("#user-panel .user-name").text(user.name);
-//         }
-//         else {
-//             $("#user-panel .user-avatar").html("");
-//             $("#user-panel .user-name").text("");
-//         }
-//     };
-
-//     return { initialize, show, hide, update };
-// })();
-
-const OnlineUsersPanel = (function() {
-    // This function initializes the UI
-    const initialize = function() {};
-
-    // This function updates the online users panel
-    const update = function(onlineUsers) {
-        const onlineUsersArea = $("#online-users-area");
-
-        // Clear the online users area
-        onlineUsersArea.empty();
-
-		// Get the current user
-        const currentUser = Authentication.getUser();
-
-        // Add the user one-by-one
-        for (const username in onlineUsers) {
-            if (username != currentUser.username) {
-                onlineUsersArea.append(
-                    $("<div id='username-" + username + "'></div>")
-                        .append(UI.getUserDisplay(onlineUsers[username]))
-                );
-            }
-        }
-    };
-
-    // This function adds a user in the panel
-	const addUser = function(user) {
-        const onlineUsersArea = $("#online-users-area");
-		
-		// Find the user
-		const userDiv = onlineUsersArea.find("#username-" + user.username);
-		
-		// Add the user
-		if (userDiv.length == 0) {
-			onlineUsersArea.append(
-				$("<div id='username-" + user.username + "'></div>")
-					.append(UI.getUserDisplay(user))
-			);
-		}
-	};
-
-    // This function removes a user from the panel
-	const removeUser = function(user) {
-        const onlineUsersArea = $("#online-users-area");
-		
-		// Find the user
-		const userDiv = onlineUsersArea.find("#username-" + user.username);
-		
-		// Remove the user
-		if (userDiv.length > 0) userDiv.remove();
-	};
-
-    return { initialize, update, addUser, removeUser };
-})();
-
-const ChatPanel = (function() {
-	// This stores the chat area
-    let chatArea = null;
-
-    // This function initializes the UI
+const gameStartPanel = (function() {
     const initialize = function() {
-		// Set up the chat area
-		chatArea = $("#chat-area");
-        $("#chat-input").on("keydown", () => {
-            Socket.typing();
-            // Socket.typing
+        console.log("hi 2");
+        $("#signout-button").on("click", () => {
+            // Send a signout request
+            Authentication.signout(
+                () => {
+                    Socket.disconnect();
+                    SignInForm.show();
+                    $("#signout-button").prop("disabled", true); // Use prop instead of disabled
+                    $("#log_in_successful").text("");
+                }
+            );
         });
-        // Submit event for the input form
-        $("#chat-input-form").on("submit", (e) => {
-            // Do not submit the form
-            e.preventDefault();
-
-            // Get the message content
-            const content = $("#chat-input").val().trim();
-
-            // Post it
-            Socket.postMessage(content);
-
-			// Clear the message
-            $("#chat-input").val("");
+        $("#start-btn").on("click", () => {
+            console.log("Press start button")
         });
- 	};
-
-    // This function updates the chatroom area
-    const update = function(chatroom) {
-        // Clear the online users area
-        chatArea.empty();
-
-        // Add the chat message one-by-one
-        for (const message of chatroom) {
-			addMessage(message);
-        }
     };
 
-    // This function adds a new message at the end of the chatroom
-    const addMessage = function(message) {
-		const datetime = new Date(message.datetime);
-		const datetimeString = datetime.toLocaleDateString() + " " +
-							   datetime.toLocaleTimeString();
-
-		chatArea.append(
-			$("<div class='chat-message-panel row'></div>")
-				.append(UI.getUserDisplay(message.user))
-				.append($("<div class='chat-message col'></div>")
-					.append($("<div class='chat-date'>" + datetimeString + "</div>"))
-					.append($("<div class='chat-content'>" + message.content + "</div>"))
-				)
-		);
-		chatArea.scrollTop(chatArea[0].scrollHeight);
+    const show = function() {
+        $("#game-start-panel").fadeIn(500);
     };
 
-    const userTyping = function(user){
-        const currentUser = Authentication.getUser();
-        if(!(user.username == currentUser.username)){
-            const typerName = user.name;
-            $("#typing").text(typerName + " is typing...");
-            setTimeout(() => {
-                $("#typing").text("");
-            }, 3000);
-        }
-    }
-    return { initialize, update, addMessage, userTyping };
+    const hide = function() {
+        $("#log_in_successful").text("");
+        $("#game-start-panel").fadeOut(500);
+    };
+
+    return { initialize, show, hide };
 })();
+
+const gameOverPanel = (function() {
+    const initialize = function() {
+        $("#g_signout-button").on("click", () => {
+            // Send a signout request
+            Authentication.signout(
+                () => {
+                    Socket.disconnect();
+                    SignInForm.show();
+                    $("#signout-button").prop("disabled", true); // Use prop instead of disabled
+                    $("#log_in_successful").text("");
+                }
+            );
+        });
+        $("#re-start-btn").on("click", () => {
+            console.log("Press re-start button")
+        });
+    };
+
+    const show = function() {
+        $("#game-over-container").fadeIn(500);
+    };
+
+    const hide = function() {
+        $("#game-over-container").fadeOut(500);
+    };
+
+    return { initialize, show, hide };
+})();
+
+
 
 const UI = (function() {
     // This function gets the user display
@@ -250,7 +144,7 @@ const UI = (function() {
     };
 
     // The components of the UI are put here
-    const components = [SignInForm, OnlineUsersPanel, ChatPanel];
+    const components = [SignInForm, gameStartPanel, gameOverPanel];
 
     // This function initializes the UI
     const initialize = function() {
