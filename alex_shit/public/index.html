@@ -16,7 +16,7 @@
         </header>
 
         <!-- Login and Registration Section -->
-        <div id="signin-overlay" class="overlay row">
+        <div id="signin-overlay" class="overlay row" >
             <div id="login">
                 <h2>Player Login</h2>
                 <form id="signin-form" class="col">
@@ -47,27 +47,30 @@
                 </form>
             </div>
         </div>
-        <div id = "log_in_successful" style = "display: none">LOG IN SUCCESSFUL!</div>
         <!-- Game Start Section -->
-        <section id="game-rules-section" >
+        <section id="game-start-panel">
+            <div id = "log_in_successful" style = "display: none">LOG IN SUCCESSFUL!</div>
             <div id="game-rules">
                 <h2>Game Rules</h2>
                 <ul>
                     <li>1. Navigate the maze to collect items and defeat your opponent.</li>
                     <li>2. Use mouse click to move around the maze.</li>
                     <li>3. Each item has unique functionality. 
-                        <li>- Bomb: Player can place the bomb on the maze as a trap using key "e", and it activate in 3 seconds and explode when user is close to it.</li> 
-                        <li>- Shield: The shield will protect you from the explosion once.</li>
-                        <li>- Heart: The heart will increase your HP.</li>
-                        <li>- Portal: Player can teleport in the maze through the portals.</li> 
+                        <ul>
+                            <li>- Bomb: Player can place the bomb on the maze as a trap using key "e", and it activate in 3 seconds and explode when user is close to it.</li> 
+                            <li>- Shield: The shield will protect you from the explosion once.</li>
+                            <li>- Heart: The heart will increase your HP.</li>
+                            <li>- Portal: Player can teleport in the maze through the portals.</li> 
+                        </ul>
                     </li>
                     <li>4. The player whose HP dropped to 0 will lose, or the player with the highest HP after 3 minutes wins.</li>
                 </ul>
             </div>
+            <button id="signout-button" disabled>Log Out</button>
             <button id="start-btn" disabled>Start Game</button>
         </section>
     </div>
-    <div id="game-over-container" style = "display: none">
+    <div id="game-over-container" style = "display:none">
         <h1 id="game-over-title">Game Over</h1>
 
         <!-- Result: Win/Lose -->
@@ -75,48 +78,51 @@
             <p id="result-message">You <span id="result-status">Win</span>!</p>
         </div>
         
-            <!-- Title -->
-            <h1 id="ranking-title">Player Rankings</h1>
-    
-            <!-- Rankings Table -->
-            <table id="ranking-table">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Player Name</th>
-                        <th>Wins</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Player 1</td>
-                        <td>10</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Player 2</td>
-                        <td>8</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Player 3</td>
-                        <td>5</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Player 4</td>
-                        <td>3</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>Player 5</td>
-                        <td>1</td>
-                    </tr>
-                </tbody>
-            </table>
-        
+        <!-- Title -->
+        <h1 id="ranking-title">Player Rankings</h1>
+
+        <!-- Rankings Table -->
+        <table id="ranking-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player Name</th>
+                    <th>Wins</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td id="1_user">Player 1</td>
+                    <td id="1_win">10</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td id="2_user">Player 2</td>
+                    <td id="2_win">8</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td id="3_user">Player 3</td>
+                    <td id="3_win">5</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td id="4_user">Player 4</td>
+                    <td id="4_win">3</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td id="5_user">Player 5</td>
+                    <td id="5_win">1</td>
+                </tr>
+            </tbody>
+        </table>
+        <button id="g_signout-button" >Log Out</button>
+        <button id="re-start-btn" disabled>Restart</button>        
     </div>
+
+
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="scripts/socket.js"></script>
     <script src="scripts/ui.js"></script> 
@@ -135,6 +141,7 @@
                     //UserPanel.show();
                     $("#log_in_successful").show()
                     Socket.connect();
+                    $("#signout-button").prop('disabled', false);
                 },
                 () => { SignInForm.show();} //SignInForm.show();
             );
@@ -143,4 +150,3 @@
 </body>
     
 </html>
-
