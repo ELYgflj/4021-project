@@ -2,86 +2,95 @@ const Socket = (function() {
     // This stores the current Socket.IO socket
     let socket = null;
 
+    // This function gets the socket from the module
+    const getSocket = function() {
+        return socket;
+    };
+
     // This function connects the server and initializes the socket
     const connect = function() {
         socket = io();
 
         // Wait for the socket to connect successfully
         socket.on("connect", () => {
-            console.log("Connected to the server");
+            // Get the online user list
+            socket.emit("get users");
+
+            // Get the chatroom messages
+            socket.emit("get messages");
         });
 
-        // Set up the game state event
-        socket.on('gameState', (data) => {
-            const { players, items, portals } = JSON.parse(data);
-            updateGame(players, items, portals);
+        // Set up the users event
+        socket.on("users", (onlineUsers) => {
+            onlineUsers = JSON.parse(onlineUsers);
+
+            // Show the online users
+            OnlineUsersPanel.update(onlineUsers);
         });
 
-        // Set up the timer event
-        socket.on('timer', (data) => {
-            document.getElementById('time').textContent = data.time;
+        // Set up the add user event
+        socket.on("add user", (user) => {
+            user = JSON.parse(user);
+
+            // Add the online user
+            OnlineUsersPanel.addUser(user);
         });
 
-        // Set up the game over event
-        socket.on('gameOver', () => {
-            UI.showGameOver();
+        // Set up the remove user event
+        socket.on("remove user", (user) => {
+            user = JSON.parse(user);
+
+            // Remove the online user
+            OnlineUsersPanel.removeUser(user);
+        });
+
+        // Set up the messages event
+        socket.on("messages", (chatroom) => {
+            chatroom = JSON.parse(chatroom);
+
+            // Show the chatroom messages
+            ChatPanel.update(chatroom);
+        });
+
+        // Set up the add message event
+        socket.on("add message", (message) => {
+            message = JSON.parse(message);
+
+            // Add the message to the chatroom
+            ChatPanel.addMessage(message);
+        });
+
+        socket.on("typer", (user) => {
+            user = JSON.parse(user);
+
+            // Show the chatroom messages
+            ChatPanel.userTyping(user);
         });
     };
-    // This function creates a character for user when the user press on the button
-    const createCharacter = function(){
-        console.log("pt 1")
-        if (socket) {
-            socket.emit('createCharacter');
-        }else{
-            console.log("pt 3")
+
+    // This function disconnects the socket from the server
+    const disconnect = function() {
+        socket.disconnect();
+        socket = null;
+    };
+
+    // This function sends a post message event to the server
+    const playermove = function(content) {
+        if (socket && socket.connected) {
+            socket.emit("post message", content);
+        }
+    };
+
+    const typing = function(){
+        if (socket && socket.connected) {
+            socket.emit("typing");
         }
     }
-    // This function sends a request to start the game
-    const startGame = function() {
-        if (socket) {
-            socket.emit('startGame');
-        }
-    };
+    // const playermove = function(content){
+    //     if (socket && socket.connected) {
+    //         socket.emit("playermove", content);
+    //     }
+    // }
 
-    // This function sends a move event to the server
-    const move = function(direction) {
-        if (socket && socket.connected) {
-            socket.emit('move', direction);
-        }
-    };
-
-    // This function updates the game UI with the current state
-    const updateGame = function(players, items, portals) {
-        const gameDiv = document.getElementById('game');
-        gameDiv.innerHTML = ''; // Clear the game area
-
-        // Update players
-        for (const id in players) {
-            const player = document.createElement('div');
-            player.classList.add('player');
-            player.style.left = `${players[id].x * 20}px`;
-            player.style.top = `${players[id].y * 20}px`;
-            gameDiv.appendChild(player);
-        }
-
-        // Update items
-        items.forEach(item => {
-            const itemDiv = document.createElement('div');
-            itemDiv.classList.add('item');
-            itemDiv.style.left = `${item.x * 20}px`;
-            itemDiv.style.top = `${item.y * 20}px`;
-            gameDiv.appendChild(itemDiv);
-        });
-
-        // Update portals
-        portals.forEach(portal => {
-            const portalDiv = document.createElement('div');
-            portalDiv.classList.add('portal');
-            portalDiv.style.left = `${portal.x * 20}px`;
-            portalDiv.style.top = `${portal.y * 20}px`;
-            gameDiv.appendChild(portalDiv);
-        });
-    };
-
-    return { connect, createCharacter, startGame, move };
+    return { getSocket, connect, disconnect, typing, playermove };
 })();

@@ -32,7 +32,7 @@ const Player = function(ctx, x, y, gameArea,walls) {
         let deltaY = targetY - y;
         // 计算当前的移动方向
         let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        times = distance*50
+        times = distance/5;
         // 如果距离不为 0，则确定移动方向
         if (distance > 0) {
             // 计算移动的步长
@@ -90,8 +90,6 @@ const Player = function(ctx, x, y, gameArea,walls) {
             count =0;
             let deltaX = targetx - x;
             let deltaY = targety - y;
-            let stepX = deltaX;
-            let stepY = deltaY;
             let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
             if (distance > 0) {
                 x += deltaX/times;

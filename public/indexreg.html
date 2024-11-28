@@ -65,6 +65,17 @@
                 </ul>
             </div>
             <button id="start-btn" disabled>Start Game</button>
+            <!-- <button id="start-btn">Start Game</button>
+
+            <script>
+                // 获取按钮
+                const startButton = document.getElementById("start-btn");
+        
+                // 添加点击事件
+                startButton.onclick = function() {
+                    window.location.href = "http://localhost:8000/gem_rush.html"; // 替换为你想要跳转的页面地址
+                };
+            </script> -->
         </section>
     </div>
     <div id="game-over-container" style = "display: none">
@@ -130,10 +141,12 @@
             // Validate the signin
             Authentication.validate(
                 () => {
+
                     SignInForm.hide();
                     //UserPanel.update(Authentication.getUser());
                     //UserPanel.show();
                     $("#log_in_successful").show()
+                    window.location.href = "http://localhost:8000/gem_rush.html";
                     Socket.connect();
                 },
                 () => { SignInForm.show();} //SignInForm.show();

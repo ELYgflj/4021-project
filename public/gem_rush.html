@@ -82,20 +82,23 @@
             </text>
         </svg>
     </div>
-
+    <script src="https://cdn.socket.io/4.4.0/socket.io.min.js"></script> 
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script src="bounding_box.js"></script>
     <script src="sprite.js"></script>
     <script src="gem_player.js"></script>
     <script src="gem_gem.js"></script>
     <script src="gem_fire.js"></script>
+    <script src="scripts/socket.js"></script>
+    <script src="scripts/ui.js"></script> 
     <script>
     $(function() {
         const canvas = document.getElementById("gameCanvas");
         const context = canvas.getContext("2d");
-        const socket = new WebSocket("ws://localhost:8000");
+        const socket = io('http://localhost:8000');
         const gameArea = BoundingBox(context, 165, 60, 420, 800);
         const walls = [BoundingBox(context,310,200,320,800)];
+
 
         let gameStartTime = 0;   
         const totalGameTime = 20; 
@@ -164,6 +167,12 @@
                 /* 处理鼠标按下，移动玩家到点击位置 */
                 player1.moveTo(mouseX, mouseY); // 假设 player1 有 moveTo 方法
                 // io.exit()
+                const content = {
+                    x: mouseX,
+                    y: mouseY,
+
+                };
+                postMessage(content);
                 
             });
             requestAnimationFrame(drawGame);

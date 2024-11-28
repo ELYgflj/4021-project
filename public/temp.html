@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Fight - Front Page</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: "Press Start 2P", sans-serif;
+        }
+        #game-container {
+            position: relative;
+        }
+        canvas {
+            background: url(background.png);
+            background-size: cover;
+        }
+        canvas, #counter, #game-start, #game-over {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+        canvas, #game-start, #game-over {
+            border: 1px solid gray;
+            width: 854px;
+            height: 480px;
+        }
+        #counter text {
+            font-size: 130%;
+            fill: white;
+            stroke: black;
+            stroke-width: 1px;
+        }
+        #game-start text {
+            font-size: 150%;
+            fill: white;
+            text-anchor: middle;
+        }
+        #game-start #game-title {
+            font-size: 400%;
+            fill: url(#title-fill);
+            stroke: black;
+        }
+        #game-over text {
+            font-size: 120%;
+            fill: url(#game-over-fill);
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <!-- Front Page Container -->
+    <div id="front-page-container">
+        <!-- Game Title -->
+        <header>
+            <h1>Maze Fight</h1>
+        </header>
+
+        <!-- Login and Registration Section -->
+        <div id="signin-overlay" class="overlay row">
+            <div id="login">
+                <h2>Player Login</h2>
+                <form id="signin-form" class="col">
+                    <label for="signin-username">Username:</label>
+                    <input id="signin-username" placeholder="Enter your username"></input>
+                    
+                    <label for="signin-password">Password:</label>
+                    <input id="signin-password" type="password" placeholder="Enter your password"></input>
+                    
+                    <button type="submit" id="login-btn">Login</button>
+                    <div id="signin-message" class="warning center"></div>
+                </form>
+            </div>
+            <div id="register">
+                <h2>Player Registration</h2>
+                <form id="register-form">
+                    <label for="register-username">Username:</label>
+                    <input id="register-username" maxlength="16" placeholder="Enter your name"></input>
+                    
+                    <label for="register-password">Password:</label>
+                    <input id="register-password" type="password" placeholder="Enter your password"></input>
+                    
+                    <label for="register-confirm">re-enter Password:</label>
+                    <input id="register-confirm" type="password" placeholder="Enter your password again"></input>
+
+                    <button type="submit" id="register-btn">Register</button>
+                    <div id="register-message" class="warning center"></div>
+                </form>
+            </div>
+        </div>
+        <div id="log_in_successful" style="display: none">LOG IN SUCCESSFUL!</div>
+
+        <!-- Game Start Section -->
+        <section id="game-rules-section">
+            <div id="game-rules">
+                <h2>Game Rules</h2>
+                <ul>
+                    <li>1. Navigate the maze to collect items and defeat your opponent.</li>
+                    <li>2. Use mouse click to move around the maze.</li>
+                    <li>3. Each item has unique functionality. 
+                        <li>- Bomb: Player can place the bomb on the maze as a trap using key "e", and it activates in 3 seconds and explodes when the user is close to it.</li> 
+                        <li>- Shield: The shield will protect you from the explosion once.</li>
+                        <li>- Heart: The heart will increase your HP.</li>
+                        <li>- Portal: Player can teleport in the maze through the portals.</li> 
+                    </li>
+                    <li>4. The player whose HP dropped to 0 will lose, or the player with the highest HP after 3 minutes wins.</li>
+                    </ul>
+                </div>
+                <button id="start-btn" disabled>Start Game</button>
+            </section>
+        </div>
+    
+        <div id="game-over-container" style="display: none">
+            <h1 id="game-over-title">Game Over</h1>
+    
+            <!-- Result: Win/Lose -->
+            <div id="game-result">
+                <p id="result-message">You <span id="result-status">Win</span>!</p>
+            </div>
+            
+            <!-- Title -->
+            <h1 id="ranking-title">Player Rankings</h1>
+        
+            <!-- Rankings Table -->
+            <table id="ranking-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player Name</th>
+                        <th>Wins</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Player 1</td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Player 2</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Player 3</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Player 4</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Player 5</td>
+                        <td>1</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    
+        <div id="game-container" style="display: none;">
+            <canvas id="gameCanvas" width="854px" height="480px"></canvas>
+            <svg xmlns="http://www.w3.org/2000/svg" id="game-start">
+                <defs>
+                    <linearGradient id="title-fill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0.2" stop-color="red" />
+                        <stop offset="0.4" stop-color="yellow" />
+                        <stop offset="0.6" stop-color="green" />
+                        <stop offset="0.8" stop-color="purple" />
+                    </linearGradient>
+                </defs>
+                <text id="game-title" x="50%" y="45%">GEM RUSH!</text>
+                <text x="50%" y="60%">Click here to start the game</text>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" id="game-over" style="display: none">
+                <defs>
+                    <linearGradient id="game-over-fill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="red" />
+                        <stop offset="0.5" stop-color="yellow" />
+                        <stop offset="1" stop-color="red" />
+                    </linearGradient>
+                </defs>
+                <text x="50%" y="50%">
+                    Time's up! You have collected
+                    <tspan id="final-gems">0</tspan>
+                    gem(s).
+                </text>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" id="counter">
+                <text x="10" y="35">
+                    TIME:<tspan id="time-remaining">20</tspan>
+                </text>
+            </svg>
+        </div>
+    
+        <script src="/socket.io/socket.io.min.js"></script>
+        <script src="scripts/socket.js"></script>
+        <script src="scripts/ui.js"></script> 
+        <script src="scripts/registration.js"></script>
+        <script src="scripts/authentication.js"></script>
+        <script src="bounding_box.js"></script>
+        <script src="sprite.js"></script>
+        <script src="gem_player.js"></script>
+        <script src="gem_gem.js"></script>
+        <script src="gem_fire.js"></script>
+        
+        <script>
+            $(function() {
+                // Initialize the UI
+                UI.initialize();
+    
+                // Validate the signin
+                Authentication.validate(
+                    () => {
+                        SignInForm.hide();
+                        $("#log_in_successful").show();
+                        // window.location.href = "http://localhost:8000/gem_rush.html"; // 确保重定向到游戏页面
+                    Socket.connect();
+                },
+                () => { 
+                    SignInForm.show(); 
+                }
+            );
+
+            // 游戏开始按钮逻辑
+            $("#game-start").on("click", function() {
+                $("#game-start").hide();
+                // Start game logic
+                $(document).on("mousedown", function(event) {
+                    /* 获取鼠标点击位置 */
+                    let mouseX = event.clientX; // 获取鼠标的 X 坐标
+                    let mouseY = event.clientY; // 获取鼠标的 Y 坐标
+                    /* 处理鼠标按下，移动玩家到点击位置 */
+                    player1.moveTo(mouseX, mouseY); // 假设 player1 有 moveTo 方法
+                });
+                requestAnimationFrame(drawGame);
+            });
+
+            // WebSocket 连接和游戏逻辑
+            const socket = new WebSocket("ws://localhost:8000");
+            const gameArea = BoundingBox(context, 165, 60, 420, 800);
+            const walls = [BoundingBox(context, 310, 200, 320, 800)];
+
+            let gameStartTime = 0;   
+            const totalGameTime = 20; 
+            let player1 = Player(context, 427, 240, gameArea, walls); // This player
+            let player2 = Player(context, 427, 240, gameArea, walls); // Other player
+            let gems = [Gem(context, 427, 350, "green")];
+            const cornerPoints = gameArea.getPoints();
+            let collectedGems = 0;
+            let fires = [
+                Fire(context, cornerPoints.topLeft[0], cornerPoints.topLeft[1], "realfire"),
+                Fire(context, cornerPoints.topRight[0], cornerPoints.topRight[1], "realfire"), 
+                Fire(context, cornerPoints.bottomLeft[0], cornerPoints.bottomLeft[1], "realfire"), 
+                Fire(context, cornerPoints.bottomRight[0], cornerPoints.bottomRight[1], "realfire"), 
+            ];
+
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                players = data.players;
+                Object.assign(players, {
+                    player1: { name: "Alice", score: 0 },
+                    player2: { name: "Bob", score: 0 }
+                });
+                drawGame(0);
+            };
+
+            function drawGame(now) {
+                if (gameStartTime == 0) gameStartTime = now;
+                /* Update the time remaining */
+                const gameTimeSoFar = now - gameStartTime;
+                const timeRemaining = Math.ceil((totalGameTime * 1000 - gameTimeSoFar) / 1000);
+                $("#time-remaining").text(timeRemaining);
+
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < walls.length; i++) {
+                    context.fillStyle = 'white'; // 设置填充颜色
+                    context.fillRect(200, 330, 600, 10); 
+                }
+                gems.forEach(gem => {
+                    if (!gem.collected) {
+                        gem.update(now);
+                        gem.draw();
+                    }
+                });
+                player1.update(now);
+                player1.draw();
+                player2.update(now);
+                player2.draw();
+                fires.forEach(f => f.update(now));
+                fires.forEach(f => f.draw());
+                requestAnimationFrame(drawGame);
+            }
+
+        });
+    </script>
+</body>
+</html>
