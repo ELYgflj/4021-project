@@ -154,7 +154,7 @@ form button:disabled {
 
 /* Start Game Button */
 #start-btn {
-    background: #e63946;
+    background: orange;
     color: #fff;
     padding: 10px 20px;
     border: none;
@@ -301,4 +301,73 @@ form button:disabled {
 
 #quit-game:hover {
     background: #e53935;
+}
+
+#re-start-btn {
+    background: orange;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    margin-top: 15px;
+    margin-left: 40px;
+    margin-right: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#re-start-btn:hover:not(:disabled) {
+    background: #d62828;
+}
+
+#re-start-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+#signout-button {
+    background: #e63946;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    margin-top: 15px;
+    margin-left: 40px;
+    margin-right: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#signout-button:hover:not(:disabled) {
+    background: #d62828;
+}
+
+#signout-button:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+#g_signout-button {
+    background: #e63946;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    margin-top: 15px;
+    margin-left: 40px;
+    margin-right: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#g_signout-button:hover:not(:disabled) {
+    background: #d62828;
+}
+
+#g_signout-button:disabled {
+    background: #555;
+    cursor: not-allowed;
 }
