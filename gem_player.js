@@ -1,4 +1,4 @@
-const Player = function(ctx, x, y, gameArea) {
+const Player = function(ctx, x, y, gameArea,walls) {
     const sequences = {
         /* Idling sprite sequences for facing different directions */
         idleLeft:  { x: 0, y: 25, width: 24, height: 25, count: 3, timing: 2000, loop: false },
@@ -18,8 +18,6 @@ const Player = function(ctx, x, y, gameArea) {
           .setScale(2)
           .useSheet("player_sprite.png"); // Use your player sprite sheet
 
-    let direction = 0;
-    let speed = 150;
     let targetx = x;
     let targety = y;
     let count =0;
@@ -61,10 +59,28 @@ const Player = function(ctx, x, y, gameArea) {
         }
     };
 
-    const stop = function(dir) {
-        if (direction == dir) {
-            sprite.setSequence(sequences.idleDown);
-            direction = 0;
+    const stop = function(time) {
+        let { x, y } = sprite.getXY();
+        let deltaX = targetx - x;
+        let deltaY = targety - y;
+        let stepX = deltaX;
+        let stepY = deltaY;
+        targetx = x;
+        targety = y;
+        if (Math.abs(stepX) > Math.abs(stepY)) {
+            // 水平移动
+            if (stepX < 0) {
+                sprite.setSequence(sequences.idleLeft);
+            } else {
+                sprite.setSequence(sequences.idleRight);
+            }
+        } else {
+            // 垂直移动
+            if (stepY < 0) {
+                sprite.setSequence(sequences.idleUp);
+            } else {
+                sprite.setSequence(sequences.idleDown);
+            }
         }
     };
 
@@ -74,16 +90,27 @@ const Player = function(ctx, x, y, gameArea) {
             count =0;
             let deltaX = targetx - x;
             let deltaY = targety - y;
+            let stepX = deltaX;
+            let stepY = deltaY;
             let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
             if (distance > 0) {
                 x += deltaX/times;
                 y +=  deltaY/times; 
-                if (gameArea.isPointInBox(x, y))
-                    sprite.setXY(x, y);
+                if (gameArea.isPointInBox(x, y)){
+                    for (let i = 0; i < walls.length; i++) {
+                        if(walls[i].isPointInBox(x,y)){
+                            console.log("stuck");
+                            stop();
+                            return;
+                        }
+                    
+                        // 在这里对 wall 执行某些操作
+                    }
+                    sprite.setXY(x, y);}
             }
         }
         else{
-            if(count <=10){
+            if(count <=1){
                 let deltaX = targetx - x;
                 let deltaY = targety - y;
                 let stepX = deltaX;
