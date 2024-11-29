@@ -69,9 +69,16 @@ const Socket = (function() {
         } )
 
         socket.on("gem_collected",(data) => {
+            console.log("gem collect return");
             const {gemId} = JSON.parse(data);
             gammingpanel.gemCollected(gemId);
         })
+
+        socket.on("player_teleported",(data) => {
+            const{playerId,targetx,targety} = JSON.parse(data);
+            gammingpanel.TP(playerId,targetx,targety);
+        })
+        
     };
 
     // This function disconnects the socket from the server
@@ -117,14 +124,24 @@ const Socket = (function() {
 
     const playerCollectGem = function(playerId, gemId){
         if (socket && socket.connected) {
-            //console.log("playerCollectGem")
-            socket.emit("playerCollectGem", JSON.stringify({playerId: playerId,
-                gemId: gemId})
-
-            );
+            console.log("playerCollectGem")
+            socket.emit("playerCollectGem", JSON.stringify({
+                playerId: playerId,
+                gemId: gemId
+            }));
         }
     };
 
-    return { getSocket, connect, disconnect, postMessage, typing ,playermove, requestStart, sendEndGame, playerCollectGem};
+    const playerTeleport = function(playerId,targetx,targety){
+        if (socket && socket.connected) {
+            socket.emit("playerTeleport", JSON.stringify({
+                playerId: playerId,
+                targetx: targetx,
+                targety:targety
+            }));
+        }
+    }
+
+    return { getSocket, connect, disconnect, postMessage, typing ,playermove, requestStart, sendEndGame, playerCollectGem, playerTeleport};
 })();
 
