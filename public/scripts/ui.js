@@ -159,6 +159,7 @@ const gammingpanel = (function() {
     let player_change = -1;
     let player_x = -1;
     let player_y = -1;
+    let tp = -1;
     let canPlay = false;
     let gameStart = false;
     let gemIdchange = -1;
@@ -215,6 +216,20 @@ const gammingpanel = (function() {
     const gemCollected = function(gemId){
         gemIdchange = gemId;
     }
+
+    const TP = function(playerId,targetx,targety){
+        switch(playerId){
+            case 0: 
+                tp = 0;
+                player_x = targetx;
+                player_y = targety;
+                break;
+            case 1:
+                tp = 1;
+                player_x = targetx;
+                player_y = targety;
+        }
+    }
     const startGame = function(){
         gameStart = true;
         $(".start-btn").prop('disabled', false);
@@ -266,6 +281,9 @@ const gammingpanel = (function() {
             Fire(context, cornerPoints.bottomLeft[0], cornerPoints.bottomLeft[1], "realfire"), 
             Fire(context, cornerPoints.bottomRight[0], cornerPoints.bottomRight[1], "realfire")
         ];
+        portal1 = Portal(context,60,60,120,60);
+        portal2 = Portal(context,790,410,730,410);
+
         setTimeout(() => {
             drawGame(0); 
         }, 3000); // 延迟 3000 毫秒（3 秒）   
@@ -325,6 +343,16 @@ const gammingpanel = (function() {
             player1.draw();
             player2.update(now);
             player2.draw();
+            portal1.update(now);
+            portal1.draw();
+            portal2.update(now);
+            portal2.draw();
+            let portal1Position = portal1.getXY();
+            let portal1_x = portal1Position.x;
+            let portal1_y = portal1Position.y;
+            let portal2Position = portal2.getXY();
+            let portal2_x = portal2Position.x;
+            let portal2_y = portal2Position.y;
             switch (playerId){
                 case 0:
                 let playerBox = player1.getBoundingBox();
@@ -343,10 +371,42 @@ const gammingpanel = (function() {
                         //gem.randomize(gameArea);
                     }
                 }
-                    break
+                let portal_1_intersect = playerBox.isPointInBox(portal1_x,portal1_y);
+                if(portal_1_intersect == true){
+                    //
+                    Socket.playerTeleport(playerId,portal2.targetx,portal2.targety);
+                }
+                let portal_2_intersect = playerBox.isPointInBox(portal2_x,portal2_y);
+                if(portal_2_intersect == true){
+                    //
+                    Socket.playerTeleport(playerId,portal1.targetx,portal1.targety);
+                }
+                break
                 case 1:
-
+                    let playerBox2 = player2.getBoundingBox();
+                    let portal_1_intersect_2 = playerBox2.isPointInBox(portal1_x,portal1_y);
+                    if(portal_1_intersect_2 == true){
+                        //
+                        Socket.playerTeleport(playerId,portal2.targetx,portal2.targety);
+                    }
+                    let portal_2_intersect_2 = playerBox2.isPointInBox(portal2_x,portal2_y);
+                    if(portal_2_intersect_2 == true){
+                        //
+                        Socket.playerTeleport(playerId,portal1.targetx,portal1.targety);
+                    }
                     break
+            }
+            if(tp == 0){
+                tp = -1
+                player1.teleport(player_x,player_y);
+                player_x = -1
+                player_y = -1;
+            }
+            if(tp == 1){
+                tp = -1
+                player2.teleport(player_x,player_y);
+                player_x = -1
+                player_y = -1;
             }
             fires.forEach(f => f.update(now));
             fires.forEach(f => f.draw());
@@ -391,7 +451,7 @@ const gammingpanel = (function() {
     };
     return { initialize, show, hide, setPlayerId,startGame,setCanPlay,getCanPlay,getPlayerId
         ,setPlayerchange,setplayerx ,setplayery,getPlayerchange,getplayerx,getplayery, getGameStart, gemCollected
-        ,setgemchange,getgemchange
+        ,setgemchange,getgemchange,TP
      };
 }
 
