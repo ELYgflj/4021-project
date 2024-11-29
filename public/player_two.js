@@ -21,7 +21,8 @@ const Player2 = function(ctx, x, y, gameArea,walls) {
     let targetx = x;
     let targety = y;
     let count =0;
-    let times = 0
+    let times = 0;
+    let HP = 5;
     const moveTo = function(targetX, targetY) {
         // 获取当前角色的位置 (假设 sprite 对象有这些属性)
         let { x, y } = sprite.getXY();
@@ -133,12 +134,17 @@ const Player2 = function(ctx, x, y, gameArea,walls) {
         }
         sprite.update(time);
     };
-
+    const teleport = function(x,y){
+        sprite.setXY(x, y);
+        stop();
+    }
     return {
         moveTo: moveTo,
         stop: stop,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
-        update: update
+        update: update,
+        HP: HP,
+        teleport:teleport
     };
 };
