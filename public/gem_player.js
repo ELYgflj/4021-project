@@ -135,11 +135,17 @@ const Player = function(ctx, x, y, gameArea,walls) {
         sprite.update(time);
     };
 
+    const teleport = function(x,y){
+        sprite.setXY(x, y);
+        stop();
+    }
+
     return {
         moveTo: moveTo,
         stop: stop,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
-        update: update
+        update: update,
+        teleport:teleport
     };
 };
