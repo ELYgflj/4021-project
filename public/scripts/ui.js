@@ -23,7 +23,7 @@ const SignInForm = (function() {
                     //UserPanel.show();
                     $(".signout-button").prop('disabled', false);
                     Socket.connect();
-                    $("#start-btn").prop('disabled', false);
+                    $(".start-btn").prop('disabled', false);
                 },
                 (error) => { $("#signin-message").text(error); }
             );
@@ -58,6 +58,7 @@ const SignInForm = (function() {
 
     // This function shows the form
     const show = function() {
+        $("#front-page-container").fadeIn(500);
         $("#signin-overlay").fadeIn(500);
     };
 
@@ -88,7 +89,9 @@ const gameStartPanel = (function() {
                 }
             );
         });
-        $("#start-btn").on("click", () => {
+        $(".start-btn").on("click", () => {
+            $(".start-btn").prop('disabled', true);
+            $(".start-btn").text("Waiting")
             console.log("Press start button");
             Socket.requestStart();
             console.log(gammingpanel.getPlayerId())
@@ -115,6 +118,7 @@ const gameOverPanel = (function() {
             // Send a signout request
             Authentication.signout(
                 () => {
+                    hide();
                     Socket.disconnect();
                     SignInForm.show();
                     $(".signout-button").prop("disabled", true); // Use prop instead of disabled
@@ -122,10 +126,22 @@ const gameOverPanel = (function() {
                 }
             );
         });
-        $("#re-start-btn").on("click", () => {
-            console.log("Press re-start button")
+        $(".start-btn").on("click", () => {
+            $(".start-btn").prop('disabled', true);
+            $(".start-btn").text("Waiting")
+            console.log("Press start button");
+            Socket.requestStart();
+            console.log("request successful")
+            console.log(gammingpanel.getPlayerId())
+            ////
         });
     };
+
+    const handleEndGame = function(){
+        Socket.sendEndGame();
+        gammingpanel.hide();
+        show();
+    }
 
     const show = function() {
         $("#game-over-container").fadeIn(500);
@@ -135,7 +151,7 @@ const gameOverPanel = (function() {
         $("#game-over-container").fadeOut(500);
     };
 
-    return { initialize, show, hide };
+    return { initialize, show, hide, handleEndGame };
 })();
 
 const gammingpanel = (function() {
@@ -144,6 +160,7 @@ const gammingpanel = (function() {
     let player_x = -1;
     let player_y = -1;
     let canPlay = false;
+    let gameStart = false;
     const initialize = function(){
         $("#game-container").on("mousedown", function(event) {
             /* 获取鼠标点击位置 */
@@ -184,7 +201,14 @@ const gammingpanel = (function() {
     const getplayery= function(){
         return player_y;
     }
+    const getGameStart = function(){
+        return gameStart;
+    }
     const startGame = function(){
+        gameStart = true;
+        $(".start-btn").prop('disabled', false);
+        $(".start-btn").text("Start");
+        gameOverPanel.hide();
         $("#front-page-container").fadeOut(500);
 
         $("#game-container").fadeIn(500);
@@ -222,6 +246,12 @@ const gammingpanel = (function() {
             const gameTimeSoFar = now - gameStartTime;
             const timeRemaining = Math.ceil((totalGameTime * 1000 - gameTimeSoFar) / 1000);
             $("#time-remaining").text(timeRemaining);
+            if(timeRemaining == 0){
+                gameStart = false;
+                hide();
+                gameOverPanel.handleEndGame();
+                return
+            }
             context.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < walls.length; i++) {
                 context.fillStyle = 'white'; // 设置填充颜色
@@ -292,7 +322,7 @@ const gammingpanel = (function() {
         $("#game-container").fadeOut(500);
     };
     return { initialize, show, hide, setPlayerId,startGame,setCanPlay,getCanPlay,getPlayerId
-        ,setPlayerchange,setplayerx ,setplayery,getPlayerchange,getplayerx,getplayery
+        ,setPlayerchange,setplayerx ,setplayery,getPlayerchange,getplayerx,getplayery, getGameStart
      };
 }
 
