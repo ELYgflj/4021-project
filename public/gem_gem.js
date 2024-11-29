@@ -43,7 +43,7 @@ const Gem = function(ctx, x, y, color) {
         setColor(colors[Math.floor(Math.random() * 4)]);
 
         /* Randomize the position */
-        const {x, y} = area.randomPoint();
+        const {x, y} = {2000,2000};
         sprite.setXY(x, y);
     };
 

@@ -15,7 +15,9 @@ const BoundingBox = function(ctx, top, left, bottom, right) {
     // bounding box.
     const path = new Path2D();
     path.rect(left, top, right - left, bottom - top);
-
+    const draw = function(){
+        return [left, top+20, right - left, bottom - top]; 
+    }
     // This function gets the top side of the bounding box.
     const getTop = function() {
         return top;
@@ -88,6 +90,7 @@ const BoundingBox = function(ctx, top, left, bottom, right) {
         getPoints: getPoints,
         isPointInBox: isPointInBox,
         intersect: intersect,
-        randomPoint: randomPoint
+        randomPoint: randomPoint,
+        draw: draw
     };
 };

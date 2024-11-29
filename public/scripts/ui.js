@@ -247,14 +247,18 @@ const gammingpanel = (function() {
 
         const canvas = document.getElementById("gameCanvas");
         const context = canvas.getContext("2d");
-        const gameArea = BoundingBox(context, 165, 60, 420, 800);
-        const walls = [BoundingBox(context, 310, 200, 320, 800)];
+        const gameArea = BoundingBox(context, 0, 0, 420, 800);
+        
+        let  walls = [BoundingBox(context, 0, 0, 420, 10),
+            BoundingBox(context, 200, 10, 210, 110),
+            BoundingBox(context, 100, 100, 200, 110),
+        ];
         let gameStartTime = 0;   
         const totalGameTime = 20; 
         let player1 = Player(context, 427, 240, gameArea, walls); // 玩家 1
         let player2 = Player2(context, 427, 240, gameArea, walls); // 玩家 2
         let gems = [Gem(context, 427, 350, "green")];
-        const cornerPoints = gameArea.getPoints();
+        const cornerPoints = gameArea.getPoints();  
         let collectedGems = 0;
         let fires = [
             Fire(context, cornerPoints.topLeft[0], cornerPoints.topLeft[1], "realfire"),
@@ -289,7 +293,8 @@ const gammingpanel = (function() {
             context.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < walls.length; i++) {
                 context.fillStyle = 'white'; // 设置填充颜色
-                context.fillRect(200, 330, 600, 10); // 绘制墙壁
+                    const box = walls[i].draw()
+                    context.fillRect(box[0],box[1],box[2],box[3]); // 绘制墙壁
             }
 
             gems.forEach(gem => {

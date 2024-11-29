@@ -91,6 +91,7 @@ const Player = function(ctx, x, y, gameArea,walls) {
             let deltaX = targetx - x;
             let deltaY = targety - y;
             let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            console.log(distance);
             if (distance > 0) {
                 x += deltaX/times;
                 y +=  deltaY/times; 
