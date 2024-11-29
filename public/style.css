@@ -151,7 +151,7 @@ form button:disabled {
 }
 
 /* Start Game Button */
-#start-btn {
+.start-btn {
     background: orange;
     color: #fff;
     padding: 10px 20px;
@@ -163,11 +163,11 @@ form button:disabled {
     transition: all 0.3s ease;
 }
 
-#start-btn:hover:not(:disabled) {
+.start-btn:hover:not(:disabled) {
     background: #d62828;
 }
 
-#start-btn:disabled {
+.start-btn:disabled {
     background: #555;
     cursor: not-allowed;
 }
