@@ -222,7 +222,10 @@ io.on('connection', (socket) => {
             }
         });
     });
-    socket.on('close', () => {
+    socket.on("endGame", () => {
+        delete sockets[socket.id];
+    });
+    socket.on("disconnect", () => {
         delete sockets[socket.id];
     });
 
