@@ -165,17 +165,18 @@ function initializeGameObjects() {
 initializeGameObjects();
 
 io.on('connection', (socket) => {
-    const playerId = Date.now(); // Simple unique ID based on timestamp
-    players[playerId] = { x: 427, y: 240, gems: 0 }; // Initial position and gems count
+     // Initial position and gems count
     socket.on("request_start",() => {
         if(Object.keys(sockets).length<2){
             if(Object.keys(sockets).length == 0){
                 sockets[socket.id] = socket;
+                players[0] = { x: 427, y: 240, gems: 0 }
                 socket.emit(("your player id"),0);
             }
             else{
                 if( sockets[socket.id] == null){
                     sockets[socket.id] = socket;
+                    players[1] = { x: 427, y: 240, gems: 0 }
                     socket.emit(("your player id"),1);
                     io.emit("start response");
                 }
@@ -187,6 +188,7 @@ io.on('connection', (socket) => {
         }
 
     })
+    
     socket.on("player_move", (content) => {
         console.log("Player moved to:", content); // { x: mouseX, y: mouseY }
 
@@ -224,9 +226,11 @@ io.on('connection', (socket) => {
     });
     socket.on("endGame", () => {
         delete sockets[socket.id];
+        players = {};
     });
     socket.on("disconnect", () => {
         delete sockets[socket.id];
+        players = {};
     });
 
     // socket.on("request_start")
@@ -239,6 +243,12 @@ io.on('connection', (socket) => {
 
     
     });
+
+    socket.on("playerCollectGem", (data) => {
+        const{playerId, gemId} = JSON.parse(data);
+        players[playerId].gems += 1;
+        io.emit("gem_collected",JSON.stringify({gemId: gemId}))
+    })
 });
 
 //setInterval(() => {
