@@ -1,147 +1,264 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maze and Gem Rush</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.socket.io/4.4.0/socket.io.min.js"></script>
-    
-</head>
-<body>
-    <!-- Maze Fight -->
-    <div id="front-page-container">
-        <header>
-            <h1>Maze and Gem Rush</h1>
-        </header>
+const express = require("express");
+const fs = require("fs");
+const session = require("express-session");
+const app = express();
+app.use(express.static("public"));
+app.use(express.json());
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+const httpServer = createServer( app );
+const io = new Server(httpServer);
+const bcrypt = require("bcrypt");
 
-        <div id="signin-overlay" class="overlay row">
-            <div id="login">
-                <h2>Player Login</h2>
-                <form id="signin-form" class="col">
-                    <label for="signin-username">Username:</label>
-                    <input id="signin-username" placeholder="Enter your username"></input>
-                    
-                    <label for="signin-password">Password:</label>
-                    <input id="signin-password" type="password" placeholder="Enter your password"></input>
-                    
-                    <button type="submit" id="login-btn">Login</button>
-                    <div id="signin-message" class="warning center"></div>
-                </form>
-            </div>
+const sockets = {}
 
-            <div id="register">
-                <h2>Player Registration</h2>
-                <form id="register-form">
-                    <label for="register-username">Username:</label>
-                    <input id="register-username" maxlength="16" placeholder="Enter your name"></input>
-                    
-                    <label for="register-password">Password:</label>
-                    <input id="register-password" type="password" placeholder="Enter your password"></input>
-                    
-                    <label for="register-confirm">re-enter Password:</label>
-                    <input id="register-confirm" type="password" placeholder="Enter your password again"></input>
+const gameSession = session({
+    secret: "game",
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    cookie: { maxAge: 300000 }
+});
+app.use(gameSession);
 
-                    <button type="submit" id="register-btn">Register</button>
-                    <div id="register-message" class="warning center"></div>
-                </form>
-            </div>
-        </div>
+let players = {};
+let gems = [];
+let fires = [];
+const MAX_GEMS = 5;
+const MAX_FIRES = 3;
 
-        <section id="game-start-panel">
-            <div id="log_in_successful" style="display: none">LOG IN SUCCESSFUL!</div>
-            <div id="game-rules">
-                <h2>Game Rules</h2>
-                <ul>
-                    <li>1. Navigate the maze to collect items and defeat your opponent.</li>
-                    <li>2. Use mouse click to move around the maze.</li>
-                    <li>3. Each item has unique functionality. 
-                        <ul>
-                            <li>- Bomb: Player can place the bomb on the maze as a trap using key "e".</li> 
-                            <li>- Shield: The shield will protect you from the explosion once. </li>
-                            <li>- Heart: The heart will increase your HP.</li>
-                            <li>- Portal: Player can teleport in the maze through the portals.</li> 
-                        </ul>
-                    </li>
-                    <li>4. The player whose HP dropped to 0 will lose, or the player with the highest HP after 3 minutes wins.</li>
-                </ul>
-            </div>
-            <button class="signout-button" disabled>Log Out</button>
-            <button class="start-btn" disabled>Start Game</button>
-            <div id = "full"></div>
-        </section>
-    </div>
+// Initialize gems and fires
+function containWordCharsOnly(text) {
+    return /^\w+$/.test(text);
+}
 
-    <div id="game-container" style="display: none;">
-        <canvas id="gameCanvas" width="854" height="480"></canvas>
-        <svg xmlns="http://www.w3.org/2000/svg" id="game-start">
-            <defs>
-                <linearGradient id="title-fill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0.2" stop-color="red" />
-                    <stop offset="0.4" stop-color="yellow" />
-                    <stop offset="0.6" stop-color="green" />
-                    <stop offset="0.8" stop-color="purple" />
-                </linearGradient>
-            </defs>
-            <text id="game-title" x="50%" y="45%">GEM RUSH!</text>
-        </svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" id="game-over" style="display: none">
-            <defs>
-                <linearGradient id="game-over-fill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="red" />
-                    <stop offset="0.5" stop-color="yellow" />
-                    <stop offset="1" stop-color="red" />
-                </linearGradient>
-            </defs>
-            <text x="50%" y="50%">
-                Time's up! You have collected
-                <tspan id="final-gems">0</tspan>
-                gem(s).
-            </text>
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" id="counter">
-            <text x="10" y="35">
-                TIME:<tspan id="time-remaining">20</tspan>
-            </text>
-        </svg>
-    </div>
+// Handle the /register endpoint
+app.post("/register", (req, res) => {
+    // Get the JSON data from the body
+    const { username, password } = req.body;
 
-    <script src="/socket.io/socket.io.min.js"></script>
-    <script src="scripts/socket.js"></script>
-    <script src="scripts/ui.js"></script> 
-    <script src="scripts/registration.js"></script>
-    <script src="scripts/authentication.js"></script>
-    <script src="bounding_box.js"></script>
-    <script src="gem_player.js"></script>
-    <script src="player_two.js"></script>
-    <script src="gem_gem.js"></script>
-    <script src="gem_fire.js"></script>
-    <script src="sprite.js"></script>
-    <script>
-        $(function() {
-            // Initialize the UI
-            UI.initialize();
-    
-            // Validate the signin
-            Authentication.validate(
-                () => {
-
-                    SignInForm.hide();
-                    //UserPanel.update(Authentication.getUser());
-                    //UserPanel.show();
-                    $("#log_in_successful").show()
-                    // window.location.href = "http://localhost:8000/gem_rush.html";
-                    Socket.connect();
-                    $("#start-btn").prop('disabled', false);
-                    $(".signout-button").prop('disabled', false);
-                    
-                },
-                () => { SignInForm.show();} //SignInForm.show();
-            );
+    //
+    // D. Reading the users.json file
+    //
+    const users = JSON.parse(fs.readFileSync("./data/users.json"));
+    //
+    // E. Checking for the user data correctness
+    //
+    if(!username || !password){
+        res.json({
+            status: "error",
+            error: "Fill in username/avatar/name/password"
         });
-        </script>
-</body>
-</html>
+        return;
+    }
+    if(!containWordCharsOnly(username)){
+        res.json({
+            status: "error",
+            error: "Username should only contain characters"
+        })
+        return;
+    }
+    if(username in users){
+        res.json({
+            status: "error",
+            error: "Username used"
+        })
+        return;
+    }
+    
+    //
+    // G. Adding the new user account
+    //
+    const hash = bcrypt.hashSync(password,10);
+    let wins = 0;
+    users[username] = {hash,wins};
+    //
+    // H. Saving the users.json file
+    //
+    fs.writeFileSync("./data/users.json",
+        JSON.stringify(users,null, " ")
+    );
+    //
+    // I. Sending a success response to the browser
+    //
+    res.json({status: "success"});
+    // Delete when appropriate
+});
+
+// Handle the /signin endpoint
+app.post("/signin", (req, res) => {
+    // Get the JSON data from the body
+    const { username, password } = req.body;
+    console.log("check pt2");
+    //
+    // D. Reading the users.json file
+    //
+    const users = JSON.parse(fs.readFileSync("./data/users.json"));
+    //
+    // E. Checking for username/password
+    //
+    if(!(username in users)){
+        res.json({
+            status: "error",
+            error: "Username not found"
+        })
+        return;
+    }
+    const hash = users[username].hash;
+    if (!(bcrypt.compareSync(password, hash))){
+        res.json({
+            status: "error",
+            error: "Wrong password"
+        })
+        return;
+    }
+    //
+    // G. Sending a success response with the user account
+    //
+    req.session.user = {username};
+    console.log("check pt1");
+    res.json({status: "success", user: {username}});
+    // Delete when appropriate
+});
+
+// Handle the /validate endpoint
+app.get("/validate", (req, res) => {
+    //
+    // B. Getting req.session.user
+    //
+    const user = req.session.user;
+    //
+    // D. Sending a success response with the user account
+    //
+    if(user){
+        res.json({status: "success", user});
+        return;
+    }else{
+        res.json({status: "error", error: "Validation fail"});
+    }
+    // Delete when appropriate
+});
+
+// Handle the /signout endpoint
+app.get("/signout", (req, res) => {
+
+    //
+    // Deleting req.session.user
+    //
+    req.session.destroy();
+    //
+    // Sending a success response
+    //
+    res.json({status: "success"});
+    // Delete when appropriate
+});
+
+function initializeGameObjects() {
+    for (let i = 0; i < MAX_GEMS; i++) {
+        gems.push({ x: Math.random() * 800, y: Math.random() * 480, collected: false });
+    }
+    for (let i = 0; i < MAX_FIRES; i++) {
+        fires.push({ x: Math.random() * 800, y: Math.random() * 480 });
+    }
+}
+
+initializeGameObjects();
+
+io.on('connection', (socket) => {
+     // Initial position and gems count
+    socket.on("request_start",() => {
+        if(Object.keys(sockets).length<2){
+            if(Object.keys(sockets).length == 0){
+                sockets[socket.id] = socket;
+                players[0] = { x: 427, y: 240, gems: 0 }
+                socket.emit(("your player id"),0);
+            }
+            else{
+                if( sockets[socket.id] == null){
+                    sockets[socket.id] = socket;
+                    players[1] = { x: 427, y: 240, gems: 0 }
+                    socket.emit(("your player id"),1);
+                    io.emit("start response");
+                }
+
+            }
+        }
+        else{
+            socket.emit(("full"));
+        }
+
+    })
+    
+    socket.on("player_move", (content) => {
+        console.log("Player moved to:", content); // { x: mouseX, y: mouseY }
+
+        // 处理移动逻辑，例如更新玩家位置
+        // 假设你有 players 对象来存储玩家信息 
+        // const playerId = socket.id; // 使用 socket.id 唯一标识每个玩家
+        // players[playerId] = {
+        //     x: content.x,
+        //     y: content.y
+        // };
+        // 可以选择广播给其他客户端
+        const position = {
+            playerId:content.playerId,
+            x: content.x,
+            y: content.y
+        }
+        io.emit("playerposition", JSON.stringify(position));
+    });
+
+    
+    socket.on('message', (message) => {
+        const data = JSON.parse(message);
+        if (data.type === 'move') {
+            players[playerId].x += data.dx;
+            players[playerId].y += data.dy;
+        }
+
+        // Check for gem collection
+        gems.forEach(gem => {
+            if (!gem.collected && Math.abs(gem.x - players[playerId].x) < 20 && Math.abs(gem.y - players[playerId].y) < 20) {
+                gem.collected = true;
+                players[playerId].gems++;
+            }
+        });
+    });
+    socket.on("endGame", () => {
+        delete sockets[socket.id];
+        players = {};
+    });
+    socket.on("disconnect", () => {
+        delete sockets[socket.id];
+        players = {};
+    });
+
+    // socket.on("request_start")
+    socket.on('connection', (socket) => {
+        console.log('A user connected');
+    
+        // 监听 playermove 事件
+
+
+
+    
+    });
+
+    socket.on("playerCollectGem", (data) => {
+        const{playerId, gemId} = JSON.parse(data);
+        players[playerId].gems += 1;
+        io.emit("gem_collected",JSON.stringify({gemId: gemId}))
+    })
+});
+
+//setInterval(() => {
+//    io.clients.forEach((client) => {
+//        if (client.readyState === WebSocket.OPEN) {
+//            client.send(JSON.stringify({ players, gems, fires }));
+//        }
+//    });
+//}, 1000 / 60); // 60 FPS
+
+httpServer.listen(8000, () => {
+    console.log("The game server has started...");
+});
