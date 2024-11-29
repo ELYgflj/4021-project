@@ -69,7 +69,7 @@
                 </ul>
             </div>
             <button class="signout-button" disabled>Log Out</button>
-            <button id="start-btn" disabled>Start Game</button>
+            <button class="start-btn" disabled>Start Game</button>
             <div id = "full"></div>
         </section>
     </div>
@@ -106,7 +106,69 @@
             <text x="10" y="35">
                 TIME:<tspan id="time-remaining">20</tspan>
             </text>
+            <text x="150" y="35">
+                HP:<tspan id="HP">-1</tspan>
+            </text>
+            <text x="290" y="35">
+                Bomb:<tspan id="Bomb">-1</tspan>
+            </text>
+            <text x="420" y="35">
+                Shield:<tspan id="Shield">-1</tspan>
+            </text>
         </svg>
+        
+    </div>
+
+    <div id="game-over-container" style = "display:none">
+        <h1 id="game-over-title">Game Over</h1>
+
+        <!-- Result: Win/Lose -->
+        <div id="game-result">
+            <p id="result-message">You <span id="result-status">Win</span>!</p>
+        </div>
+        
+        <!-- Title -->
+        <h1 id="ranking-title">Player Rankings</h1>
+
+        <!-- Rankings Table -->
+        <table id="ranking-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player Name</th>
+                    <th>Wins</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td id="1_user">Player 1</td>
+                    <td id="1_win">10</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td id="2_user">Player 2</td>
+                    <td id="2_win">8</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td id="3_user">Player 3</td>
+                    <td id="3_win">5</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td id="4_user">Player 4</td>
+                    <td id="4_win">3</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td id="5_user">Player 5</td>
+                    <td id="5_win">1</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="signout-button" >Log Out</button>
+        <button class="start-btn" disabled>Restart</button>        
     </div>
 
     <script src="/socket.io/socket.io.min.js"></script>
@@ -135,9 +197,8 @@
                     $("#log_in_successful").show()
                     // window.location.href = "http://localhost:8000/gem_rush.html";
                     Socket.connect();
-                    $("#start-btn").prop('disabled', false);
-                    $(".signout-button").prop('disabled', false);
-                    
+                    $(".start-btn").prop('disabled', false);
+                    $(".signout-button").prop('disabled', false);                   
                 },
                 () => { SignInForm.show();} //SignInForm.show();
             );
