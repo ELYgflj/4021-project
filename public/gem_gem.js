@@ -54,6 +54,7 @@ const Gem = function(ctx, x, y, color) {
         setColor: setColor,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
-        update: sprite.update
+        update: sprite.update,
+        randomize :randomize
     };
 };

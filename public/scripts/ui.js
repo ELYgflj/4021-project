@@ -161,6 +161,7 @@ const gammingpanel = (function() {
     let player_y = -1;
     let canPlay = false;
     let gameStart = false;
+    let gemIdchange = -1;
     const initialize = function(){
         $("#game-container").on("mousedown", function(event) {
             /* 获取鼠标点击位置 */
@@ -192,6 +193,9 @@ const gammingpanel = (function() {
     const setplayery= function(id){
         player_y = id;
     }
+    const setgemchange= function(id){
+        gemIdchange = id;
+    }
     const getPlayerchange = function(){
         return player_change;
     }
@@ -201,11 +205,15 @@ const gammingpanel = (function() {
     const getplayery= function(){
         return player_y;
     }
+    const getgemchange= function(){
+        return gemIdchange;
+    }
     const getGameStart = function(){
         return gameStart;
     }
+    
     const gemCollected = function(gemId){
-        gems[gemId].randomize;
+        gemIdchange = gemId;
     }
     const startGame = function(){
         gameStart = true;
@@ -215,6 +223,27 @@ const gammingpanel = (function() {
         $("#front-page-container").fadeOut(500);
 
         $("#game-container").fadeIn(500);
+        let countdownStart = 4; // 从 3 开始倒计时
+        countdown();
+        function countdown() {
+            // Decrease the remaining time
+            countdownStart = countdownStart -1;
+            $("#game-title").text(countdownStart);
+            // Continue the countdown if there is still time;
+            if(countdownStart>0){
+                setTimeout(countdown,1000);
+            }
+            // otherwise, start the game when the time is up
+            else{
+                $("#game-title").text("GO")
+                clearInterval(countdown); // 清除定时器
+                $("#game-title").fadeOut(500);
+            }
+        }
+        // 使用 setTimeout 延迟执行下一步
+        setTimeout(() => {
+            $("#game-start").hide();
+        }, 3000); // 延迟 3000 毫秒（3 秒）
 
         const canvas = document.getElementById("gameCanvas");
         const context = canvas.getContext("2d");
@@ -233,7 +262,9 @@ const gammingpanel = (function() {
             Fire(context, cornerPoints.bottomLeft[0], cornerPoints.bottomLeft[1], "realfire"), 
             Fire(context, cornerPoints.bottomRight[0], cornerPoints.bottomRight[1], "realfire")
         ];
-        drawGame(0);   
+        setTimeout(() => {
+            drawGame(0); 
+        }, 3000); // 延迟 3000 毫秒（3 秒）   
         // socket.onmessage = function(event) {
         //     const data = JSON.parse(event.data);
         //     const players = data.players;
@@ -267,7 +298,7 @@ const gammingpanel = (function() {
                     gem.draw();
                 }
             });
-            console.log(getPlayerchange());
+            //console.log(getPlayerchange());
             if(getPlayerchange()!=-1){
                 if(getPlayerchange()==0){
                     player1.moveTo(getplayerx(),getplayery())
@@ -278,6 +309,13 @@ const gammingpanel = (function() {
                     setPlayerchange(-1)
                 }
             }
+            if(getgemchange()!=-1){
+                console.log(getgemchange());
+                fires.forEach(f => f.draw());
+                gems[0].randomize(gameArea);
+                //gems[getgemchange()].randomize(gameArea);
+                setgemchange(-1);
+            }
             player1.update(now);
             player1.draw();
             player2.update(now);
@@ -285,12 +323,13 @@ const gammingpanel = (function() {
             switch (playerId){
                 case 0:
                 let playerBox = player1.getBoundingBox();
-                for (i = 0; i < gems.length(); i = i + 1){
+                for (i = 0; i < gems.length; i = i + 1){
                     let gemPosition = gems[i].getXY();
                     let gem_x = gemPosition.x;
                     let gem_y = gemPosition.y;
                     let intersect = playerBox.isPointInBox(gem_x,gem_y);
                     gemId = i;
+                    console.log(gemId);
                     if(intersect == true){
                         Socket.playerCollectGem(playerId, gemId);
 
@@ -347,6 +386,7 @@ const gammingpanel = (function() {
     };
     return { initialize, show, hide, setPlayerId,startGame,setCanPlay,getCanPlay,getPlayerId
         ,setPlayerchange,setplayerx ,setplayery,getPlayerchange,getplayerx,getplayery, getGameStart, gemCollected
+        ,setgemchange,getgemchange
      };
 }
 

@@ -117,11 +117,11 @@ const Socket = (function() {
 
     const playerCollectGem = function(playerId, gemId){
         if (socket && socket.connected) {
-            console.log("playerCollectGem")
-            socket.emit("playerCollectGem", {
-                playerId: playerId,
-                gemId: gemId
-            });
+            //console.log("playerCollectGem")
+            socket.emit("playerCollectGem", JSON.stringify({playerId: playerId,
+                gemId: gemId})
+
+            );
         }
     };
 
