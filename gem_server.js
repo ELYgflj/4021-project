@@ -249,7 +249,17 @@ io.on('connection', (socket) => {
         players[playerId].gems += 1;
         io.emit("gem_collected",JSON.stringify({gemId: gemId}))
     })
-});
+    socket.on("playerTeleport", (data) =>{
+        const{playerId,targetx,targety} = JSON.parse(data);
+        players[playerId].x = targetx;
+        players[playerId].y = targety;
+        io.emit("player_teleported",JSON.stringify({playerId: playerId,
+            targetx:targetx,
+            targety:targety
+        }))
+    });
+    }
+);
 
 //setInterval(() => {
 //    io.clients.forEach((client) => {
