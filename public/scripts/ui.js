@@ -210,8 +210,28 @@ const gammingpanel = (function() {
         $(".start-btn").text("Start");
         gameOverPanel.hide();
         $("#front-page-container").fadeOut(500);
-
-        $("#game-container").fadeIn(500);
+        $("#game-container").fadeIn(500); // 500 毫秒内淡入游戏容器
+        let countdownStart = 4; // 从 3 开始倒计时
+        countdown();
+        function countdown() {
+            // Decrease the remaining time
+            countdownStart = countdownStart -1;
+            $("#game-title").text(countdownStart);
+            // Continue the countdown if there is still time;
+            if(countdownStart>0){
+                setTimeout(countdown,1000);
+            }
+            // otherwise, start the game when the time is up
+            else{
+                $("#game-title").text("GO")
+                clearInterval(countdownInterval); // 清除定时器
+                $("#game-title").fadeOut(500);
+            }
+        }
+        // 使用 setTimeout 延迟执行下一步
+        setTimeout(() => {
+            $("#game-start").hide();
+        }, 3000); // 延迟 3000 毫秒（3 秒）
 
         const canvas = document.getElementById("gameCanvas");
         const context = canvas.getContext("2d");
@@ -230,7 +250,9 @@ const gammingpanel = (function() {
             Fire(context, cornerPoints.bottomLeft[0], cornerPoints.bottomLeft[1], "realfire"), 
             Fire(context, cornerPoints.bottomRight[0], cornerPoints.bottomRight[1], "realfire")
         ];
-        drawGame(0);   
+        setTimeout(() => {
+            drawGame(0);   
+        }, 3000); // 延迟 3000 毫秒（3 秒） 
         // socket.onmessage = function(event) {
         //     const data = JSON.parse(event.data);
         //     const players = data.players;
@@ -264,7 +286,6 @@ const gammingpanel = (function() {
                     gem.draw();
                 }
             });
-            console.log(getPlayerchange());
             if(getPlayerchange()!=-1){
                 if(getPlayerchange()==0){
                     player1.moveTo(getplayerx(),getplayery())

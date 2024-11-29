@@ -91,7 +91,7 @@ const Socket = (function() {
     };
     const playermove = function(content){
         if (socket && socket.connected) {
-            console.log(content.x);
+            //console.log(content.x);
             socket.emit("player_move",content);
         }
     };
